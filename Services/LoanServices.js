@@ -2,16 +2,16 @@ import Book from "../Models/BookModels.js";
 import User from "../Models/UserModels.js";
 import Loan from "../Models/LoanModels.js";
 
-const createLoan = async (data) =>{
-  const {userId, bookId , dataEmprestimo , dataPrevistaDevolucao , dataDevolucao , status , multa, formaPagamento } = data;
+const createLoan = async (data) => {
+  const { userId, bookId, dataEmprestimo, dataPrevistaDevolucao, dataDevolucao, status, formaPagamento } = data;
 
-  if (!userId || !bookId || !dataPrevistaDevolucao ) {
+  if (!userId || !bookId ) {
     const error = new Error("userid, bookid , e data prevista de devolucao  são obrigatórios");
     error.statusCode = 400;
     throw error;
   }
 
- const user = await User.findById(userId);
+  const user = await User.findById(userId);
 
   if (!user) {
     const error = new Error("Usuário não encontrado");
@@ -32,6 +32,7 @@ const createLoan = async (data) =>{
     error.statusCode = 400;
     throw error;
   }
+  let multa = 10;
 
   const loan = await Loan.create({
     userId,
@@ -40,7 +41,8 @@ const createLoan = async (data) =>{
     //valorEmpréstimo: valorEmpréstimo ?? livro.preco,
     formaPagamento,
     dataEmprestimo: dataEmprestimo ?? Date.now(),
-    status: status ?? "ativa",
+    status,
+    multa
   });
 
   book.disponivel = false;
@@ -62,6 +64,8 @@ const getLoanById = async (id) => {
     throw error;
   }
 
+//  console.log(loan)
+
   return loan;
 };
 
@@ -78,30 +82,10 @@ const updateLoan = async (id, data) => {
     error.statusCode = 404;
     throw error;
   }
-
-  return loan;
-};
-
-const deleteLoan = async (id) => {
-  const loan = await Loan.findById(id);
-
-  if (!loan) {
-    const error = new Error("Empréstimo não encontrado");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  await Loan.findByIdAndDelete(id);
-
-  if (Loan.status !== "cancelado") {
-    await Book.findByIdAndUpdate(loan.bookId, { disponivel: true });
-  }
-
-  return loan;
-};
+}
 
 const getLoanByUser = async (userId) => {
-  return Loan.find({ userId }).populate("userId").populate("bookId");
+  return Loan.find({ userId: userId }).populate("userId").populate("bookId");
 };
 
 const getLoanByBook = async (bookId) => {
@@ -181,16 +165,68 @@ const getLoansByDate = async (date) => {
     .populate("bookId");
 };
 
+const getLoanActive = async () => {
+  const loans = await Loan.find({ status: true })
+
+  if (!loans) {
+    const error = new Error("Nenhum empréstimo ativo encontrado.")
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return loans;
+};
+
 const countLoans = async () => {
   return Loan.countDocuments();
 };
+const getLoanOverdue = async () => {
+  const loans = await Loan.find({ status: true })
+  if (!loans) {
+    const error = new Error("Empréstimos não encontrado.")
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let allLoansOverdue = [];
+  for (let i = 0; i < loans.length; i++) {
+    if (loans[i].dataPrevistaDevolucao < Date.now) {
+      allLoansOverdue[i] = loans[i]
+    }
+  }
+  return loans;
+}
+const simulateFine = async (id) => {
+  const loan = await Loan.findById(id)
+  //console.log(loan)
+  if(!loan) {
+    const error = new Error("Empréstimo não encontrado.")
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let verificadorMulta
+  if(loan.dataPrevistaDevolucao > Date.now()) {
+    verificadorMulta = 0;
+  } else {
+    let quatosDias = Date.now() - loan.dataPrevistaDevolucao
+    verificadorMulta = quatosDias * 21
+  }
+
+  return {
+    message: "Sua multa será de " + verificadorMulta
+  }
+}
+
 
 export default {
+  simulateFine,
+  getLoanActive,
   createLoan,
+  getLoanOverdue,
   getAllLoans,
   getLoanById,
   updateLoan,
-  deleteLoan,
   getLoanByUser,
   getLoanByBook,
   updateLoanStatus,

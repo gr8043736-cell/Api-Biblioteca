@@ -4,6 +4,7 @@ import connectDB from "./Config/db.js";
 import userRoutes from "./Routes/UserRoutes.js";
 import bookRoutes from "./Routes/BookRoutes.js";
 import loanRoutes from "./Routes/LoanRoutes.js";
+import adminRoutes from "./Routes/AdminRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 app.use("/users", userRoutes);
 app.use("/books", bookRoutes);
 app.use("/loans", loanRoutes);
+app.use("/admin", adminRoutes)
 
 const startServer = async () => {
   try {

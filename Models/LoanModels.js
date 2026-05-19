@@ -12,15 +12,15 @@ const LoanSchema = new mongoose.Schema(
       ref: "Book",
       required: true,
     },
-    dataEmpréstimo: {
+    dataEmprestimo: {
       type: Date,
       default: Date.now,
     },
-    dataPrevistaDevolução: {
+    dataPrevistaDevolucao: {
       type: Date,
-      default: Date.now,
+      default: Date.now+7,
     },
-    dataDevolução: {
+    dataDevolucao: {
       type: Date,
       default: Date.now,
     },
@@ -30,16 +30,14 @@ const LoanSchema = new mongoose.Schema(
       required: true,
     },
     multa: {
-      type: String,
-      enum: ["nenhuma", "pendente", "paga"],
-      default: "nenhuma",
-
-      status: {
-        type: String,
-        enum: ["pendente", "paga", "cancelada"],
-        default: "paga",
-      },
+      type: Number,
+      default: 0
     },
+    status: {
+      type: Boolean,
+      required: true,
+      default: true
+    }
   },
   {
 

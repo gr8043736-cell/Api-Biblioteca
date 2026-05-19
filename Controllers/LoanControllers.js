@@ -1,3 +1,4 @@
+import LoanServices from "../Services/LoanServices.js";
 import LoanService from "../Services/LoanServices.js";
 
 const createLoan = async (req, res, next) => {
@@ -26,7 +27,7 @@ const getAllLoans = async (req, res, next) => {
 const getLoanById = async (req, res, next) => {
   try {
     const loan = await LoanService.getLoanById(req.params.id);
-    
+
     // Verifica se o serviço retornou algo
     if (!loan) {
       return res.status(404).json({ message: "Empréstimo não encontrado no banco de dados." });
@@ -46,15 +47,6 @@ const updateLoan = async (req, res, next) => {
   try {
     const loan = await LoanService.updateLoan(req.params.id, req.body);
     res.json(loan);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const deleteLoan = async (req, res, next) => {
-  try {
-    const loan = await LoanService.deleteaLoan(req.params.id);
-    res.json({ message: "Empréstimo deletado com sucesso", loan });
   } catch (error) {
     next(error);
   }
@@ -113,13 +105,39 @@ const countLoans = async (req, res, next) => {
     next(error);
   }
 };
+const getLoanActive = async (req, res, next) => {
+  try {
+    const loans = await LoanService.getLoanActive()
+    res.json(loans)
+  } catch (error) {
+    next(error)
+  }
+}
+const getLoanOverdue = async (req, res, next) => {
 
+  try {
+    const loans = await LoanService.getLoanOverdue()
+    res.json(loans)
+  } catch (error) {
+    next(error)
+  }
+}
+const simulateFine = async (req, res, next) => {
+  try {
+    const loans = await LoanService.simulateFine(req.params.id)
+    res.json(loans)
+  } catch (error) {
+    next(error)
+  }
+}
 export default {
+  simulateFine,
+  getLoanOverdue,
   createLoan,
+  getLoanActive,
   getAllLoans,
   getLoanById,
   updateLoan,
-  deleteLoan,
   getLoanByUser,
   getLoansByBook,
   updateLoanStatus,
