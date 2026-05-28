@@ -5,6 +5,7 @@ import userRoutes from "./Routes/UserRoutes.js";
 import bookRoutes from "./Routes/BookRoutes.js";
 import loanRoutes from "./Routes/LoanRoutes.js";
 import adminRoutes from "./Routes/AdminRoutes.js";
+import authRoutes from "./Routes/authRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -16,6 +17,8 @@ app.get("/", (req, res) => {
   res.json({ message: "API Biblioteca funcionando" });
 });
 
+
+app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/books", bookRoutes);
 app.use("/loans", loanRoutes);

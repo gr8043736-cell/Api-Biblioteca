@@ -9,7 +9,7 @@ const createBook = async (req, res, next) => {
   }
 };
 
-const getAllBooks = async (req, res, next) => {
+const getAllBooks = async (req, res, next) => { 
   try {
     const books = await BookService.getAllBooks();
     res.json(books);
@@ -49,15 +49,6 @@ const deactivateBook = async (req, res, next) => {
   try {
     const book = await BookService.deactivateBook(req.params.id);
     res.json({ message: "Livro desativado com sucesso", book });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getBooksByBrand = async (req, res, next) => {
-  try {
-    const books = await BookService.getBooksByBrand(req.params.brand);
-    res.json(books);
   } catch (error) {
     next(error);
   }
@@ -115,7 +106,6 @@ export default {
   updateBook,
   deleteBook,
   deactivateBook,
-  getBooksByBrand,
   getAvailableBooks,
   updateAvailability,
   getBookByCategory,

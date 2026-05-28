@@ -1,22 +1,23 @@
 import express from "express";
 import UserController from "../Controllers/UserControllers.js";
-
+import authMiddleware from "../middlewares/authMiddlewares.js";
+import adminMiddleware from "../middlewares/adminMiddleware.js";
 const router = express.Router();
 
-router.post("/", UserController.createUser);
 router.get("/", UserController.getAllUsers);
 
-// Rotas específicas precisam vir antes de /:id
-router.get("/count", UserController.countUsers);
-router.get("/email/:email", UserController.getUserByEmail);
-router.get("/exists/:email", UserController.emailExists);
-router.get("/search/:name", UserController.searchUsersByName);
+router.get("/me", authMiddleware, UserController.getMe)
+router.put("/me", authMiddleware, UserController.updateMe)
+router.get("/", authMiddleware, adminMiddleware, UserController.getAllUsers)
+router.get("/count", authMiddleware, adminMiddleware, UserController.countUsers);
+router.get("/email/:email", authMiddleware, adminMiddleware, UserController.getUserByEmail);
+router.get("/exists/:email", authMiddleware, adminMiddleware, UserController.emailExists);
+router.get("/search/:name", authMiddleware, adminMiddleware, UserController.searchUsersByName);
 
-router.get("/:id", UserController.getUserById);
-router.put("/:id", UserController.updateUser);
-router.patch("/:id/name", UserController.updateUserName);
-router.delete("/:id", UserController.deleteUser);
-router.patch("/:id",UserController.deactivateUser);
-router.delete("/:id", UserController.deleteAllUsers);
+router.get("/:id", authMiddleware, adminMiddleware, UserController.getUserById);
+router.patch("/me/name", authMiddleware , UserController.updateUserName);
+router.delete("/me/delete", authMiddleware, UserController.deleteUser);
+router.patch("/me/deactive", authMiddleware, UserController.deactivateUser);
+router.delete("/delete/all", authMiddleware, adminMiddleware, UserController.deleteAllUsers);
 
 export default router;

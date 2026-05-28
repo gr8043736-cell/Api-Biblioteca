@@ -41,21 +41,6 @@ const getUserById = async (id) => {
   return user;
 };
 
-const updateUser = async (id, data) => {
-  const user = await User.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!user) {
-    const error = new Error("Usuário não encontrado");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  return user;
-};
-
 const deleteUser = async (id) => {
   const loansCount = await Loan.countDocuments({ userId: id });
 
@@ -138,17 +123,6 @@ const deleteAllUsers = async () => {
 };
 
 const deactivateUser = async (id) => {
-//  const loansCount = await Loan.countDocuments();
-//  if (loansCount > 0) {
-//    const error = new Error("Não é possível desativar todos os usuários enquanto existirem Empréstimos cadastrados");
-//    error.statusCode = 400;
-//    throw error;
-//  }
-//
-//  return User.updateMany(
-//    { active:  false } , 
-//    { $set: { active: false, deactivatedAt: new Date() } } 
-//  );
 
   const user = await User.findById(id)
 
@@ -167,11 +141,37 @@ const deactivateUser = async (id) => {
   user.ativo = false
   return user;
 };
+const updateMe = async (userId, data) => {
+    delete data.role;
+    delete data.ativo;
+    delete data.password
+
+    if(data.email) {
+      const emailExists = await User.findOne({
+        email: data.email,
+        _id: { $ne: userId}
+      })
+
+      if (emailExists) {
+          throw new Error("Já existe um usuario com este email") 
+      }
+    }
+
+
+    const user = await User.findByIdAndUpdate(userId, data, {
+      new: true,
+      runValidators: true 
+    })
+
+    if (!user) {
+      throw new Error("Usuário não encontrado")
+
+    }
+  }
 export default {
   createUser,
   getAllUsers,
   getUserById,
-  updateUser,
   deleteUser,
   getUserByEmail,
   countUsers,
@@ -180,4 +180,5 @@ export default {
   searchUsersByName,
   deleteAllUsers,
   deactivateUser,
+  updateMe
 };

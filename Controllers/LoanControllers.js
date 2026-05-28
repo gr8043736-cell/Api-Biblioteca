@@ -124,7 +124,7 @@ const getLoanOverdue = async (req, res, next) => {
 }
 const simulateFine = async (req, res, next) => {
   try {
-    const loans = await LoanService.simulateFine(req.params.id)
+    const loans = await LoanService.simulateFine(req.user._id)
     res.json(loans)
   } catch (error) {
     next(error)
